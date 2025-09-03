@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { supabase, MostrarUsuarios, ObtenerIdAuthSupabase } from "../index";
-import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../index";
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create(() => ({
   loginGoogle: async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -27,12 +26,27 @@ export const useAuthStore = create((set) => ({
     return data.user
   },
   crearUserYLogin:async(p)=>{
-    const { data, error } = await supabase.auth.signUp({
+    const { data } = await supabase.auth.signUp({
       email: p.email,
       password: p.password,
       
     })
     return data.user
+  },
+  resetPasswordEmail: async (email) => {
+    const appUrl = (typeof window !== 'undefined' && window.location.origin) || '';
+    const envUrl = typeof import.meta !== 'undefined' ? import.meta.env.VITE_PUBLIC_SITE_URL : '';
+    const baseUrl = envUrl || appUrl;
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${baseUrl}/reset`,
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+  updatePassword: async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+    return data;
   },
   // obtenerIdAuthSupabase: async () => {
   //     const response = await ObtenerIdAuthSupabase();

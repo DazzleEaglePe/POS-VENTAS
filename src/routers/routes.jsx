@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+// import { PendingAccess } from "../pages/PendingAccess"; // disabled
 import {
   Categorias,
   Configuraciones,
@@ -24,6 +25,8 @@ import { Inventario } from "../pages/Inventario";
 import { ConfiguracionTicket } from "../pages/ConfiguracionTicket";
 import { MiPerfil } from "../pages/MiPerfil";
 import { SerializacionComprobantes } from "../pages/SerializacionComprobantes";
+import { ResetPassword } from "../pages/ResetPassword";
+// Admin approval PendingAccess removed
 export function MyRoutes() {
   return (
     <Routes>
@@ -36,6 +39,8 @@ export function MyRoutes() {
           </ProtectedRoute>
         }
       />
+  <Route path="/reset" element={<ResetPassword />} />
+  { /* <Route path="/pending" element={<PendingAccess />} /> */ }
 
       <Route
         path="/configuracion"

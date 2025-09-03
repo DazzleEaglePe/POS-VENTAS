@@ -4,6 +4,8 @@ import {
   SecondarylinksArray,
   ToggleTema,
   useAuthStore,
+  confirmLogout,
+  toastSuccess,
 } from "../../../index";
 import { v } from "../../../styles/variables";
 import { NavLink } from "react-router-dom";
@@ -14,10 +16,13 @@ import { useQueryClient } from "@tanstack/react-query";
 export function Sidebar({ state, setState }) {
   const {cerrarSesion} = useAuthStore()
   const queryClient = useQueryClient()
-//  const salir =()=>{
-//   cerrarSesion()
-//   queryClient.clear();
-//  }
+  const salir = async () => {
+    const ok = await confirmLogout()
+    if (!ok) return
+    await cerrarSesion()
+    queryClient.clear()
+    toastSuccess('Sesión cerrada')
+  }
   return (
     <Main $isopen={state.toString()}>
       <span className="Sidebarbutton" onClick={() => setState(!state)}>
@@ -28,19 +33,20 @@ export function Sidebar({ state, setState }) {
           <div className="imgcontent">
             <img src={v.logo} />
           </div>
-          <h2>Ada369 WEB</h2>
+          <h2>Minimarket</h2>
         </div>
-        {LinksArray.map(({ icon, label, to }) => (
+        {LinksArray.map(({ icon, label, to, color }) => (
           <div
             className={state ? "LinkContainer active" : "LinkContainer"}
             key={label}
+            title={!state ? label : undefined}
           >
             <NavLink
               to={to}
               className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
             >
               <section className={state ? "content open" : "content"}>
-                <Icon className="Linkicon" icon={icon} />
+                <Icon style={{color}} className="Linkicon" icon={icon} />
                 <span className={state ? "label_ver" : "label_oculto"}>
                   {label}
                 </span>
@@ -53,6 +59,7 @@ export function Sidebar({ state, setState }) {
           <div
             className={state ? "LinkContainer active" : "LinkContainer"}
             key={label}
+            title={!state ? label : undefined}
           >
             <NavLink
               to={to}
@@ -67,13 +74,13 @@ export function Sidebar({ state, setState }) {
             </NavLink>
           </div>
         ))}
-        <div className={state ? "LinkContainer active" : "LinkContainer"}>
-          <div className="Links" onClick={cerrarSesion} >
+        <div className={state ? "LinkContainer active" : "LinkContainer"} title={!state ? 'Salir' : undefined}>
+          <div className="Links" onClick={salir} >
             <section className={state ? "content open" : "content"}>
               <Icon
-                color="#CE82FF"
+                color="#ef4444"
                 className="Linkicon"
-                icon="heroicons:ellipsis-horizontal-circle-solid"
+                icon="solar:logout-2-bold-duotone"
               />
               <span  className={state ? "label_ver" : "label_oculto"}>SALIR</span>
             </section>
@@ -141,14 +148,14 @@ const Container = styled.div`
     margin: 9px 0;
     margin-right:10px;
     margin-left:8px;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
     position: relative;
     text-transform: uppercase;
     font-weight: 700;
   }
 
   .Links {
-    border-radius: 12px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -156,6 +163,9 @@ const Container = styled.div`
     color: ${(props) => props.theme.text};
     height: 60px;
     position: relative;
+    border: 1px solid ${(props) => props.theme.bg4};
+    background: ${(props) => props.theme.bgAlpha};
+    backdrop-filter: blur(4px);
     .content {
       display: flex;
       justify-content: center;
@@ -164,14 +174,14 @@ const Container = styled.div`
       .Linkicon {
         display: flex;
         font-size: 33px;
-filter:grayscale(100%);
+        filter:grayscale(100%);
         svg {
           font-size: 25px;
         }
       }
 
       .label_ver {
-        transition: 0.3s ease-in-out;
+        transition: 0.2s ease-in-out;
         opacity: 1;
         display: initial;
         cursor: pointer;
@@ -183,20 +193,20 @@ filter:grayscale(100%);
 
       &.open {
         justify-content: start;
-        gap: 20px;
-        padding: 20px;
+        gap: 18px;
+        padding: 18px 20px;
       }
     }
 
     &:hover {
-      background: ${(props) => props.theme.bgAlpha};
+      box-shadow: 0 0 0 3px ${(props) => props.theme.bg5} inset;
     }
 
     &.active {
       background: ${(props) => props.theme.bg6};
       border: 2px solid ${(props) => props.theme.bg5};
       color: ${(props) => props.theme.color1};
-      font-weight: 600;
+      font-weight: 700;
       .Linkicon{
         filter: grayscale(0%);
       }

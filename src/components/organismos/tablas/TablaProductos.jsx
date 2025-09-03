@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import PropTypes from "prop-types";
 import {
   Checkbox1,
   ContentAccionesTabla,
@@ -23,10 +24,9 @@ export function TablaProductos({
   setdataSelect,
   setAccion,
 }) {
-  if (data == null) return;
-  const [pagina, setPagina] = useState(1);
-  const [datas, setData] = useState(data);
-  const [columnFilters, setColumnFilters] = useState([]);
+  const safeData = data ?? [];
+  const [datas, setData] = useState(safeData);
+  const [columnFilters] = useState([]);
 
   const { eliminarProductos } = useProductosStore();
   function eliminar(p) {
@@ -54,10 +54,13 @@ export function TablaProductos({
     });
   }
   function editar(data) {
-  
     SetopenRegistro(true);
     setdataSelect(data);
     setAccion("Editar");
+  }
+  function ver(data) {
+    // Placeholder: abrir modal o drawer de detalle
+    console.log("ver producto", data);
   }
   const columns = [
     {
@@ -143,6 +146,7 @@ export function TablaProductos({
       cell: (info) => (
         <div data-title="Acciones" className="ContentCell">
           <ContentAccionesTabla
+            funcionVer={() => ver(info.row.original)}
             funcionEditar={() => editar(info.row.original)}
             funcionEliminar={() => eliminar(info.row.original)}
           />
@@ -157,7 +161,7 @@ export function TablaProductos({
     },
   ];
   const table = useReactTable({
-    data,
+    data: datas,
     columns,
     state: {
       columnFilters,
@@ -233,13 +237,18 @@ export function TablaProductos({
           table={table}
           irinicio={() => table.setPageIndex(0)}
           pagina={table.getState().pagination.pageIndex + 1}
-          setPagina={setPagina}
           maximo={table.getPageCount()}
         />
       </Container>
     </>
   );
 }
+TablaProductos.propTypes = {
+  data: PropTypes.array,
+  SetopenRegistro: PropTypes.func,
+  setdataSelect: PropTypes.func,
+  setAccion: PropTypes.func,
+};
 const Container = styled.div`
   position: relative;
 

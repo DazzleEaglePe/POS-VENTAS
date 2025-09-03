@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import PropTypes from "prop-types";
 import {
   ContentAccionesTabla,
   useCategoriasStore,
@@ -22,10 +23,9 @@ export function TablaCategorias({
   setdataSelect,
   setAccion,
 }) {
-  if (data==null) return;
-  const [pagina, setPagina] = useState(1);
-  const [datas, setData] = useState(data);
-  const [columnFilters, setColumnFilters] = useState([]);
+  const safeData = data ?? [];
+  const [datas, setData] = useState(safeData);
+  const [columnFilters] = useState([]);
 
   const { eliminarCategoria } = useCategoriasStore();
   function eliminar(p) {
@@ -52,8 +52,8 @@ export function TablaCategorias({
       }
     });
   }
-  function editar(data) {
-    if (data.nombre === "General") {
+  function editar(rowData) {
+    if (rowData.nombre === "General") {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -63,8 +63,11 @@ export function TablaCategorias({
       return;
     }
     SetopenRegistro(true);
-    setdataSelect(data);
+    setdataSelect(rowData);
     setAccion("Editar");
+  }
+  function ver(data){
+    console.log('ver categoria', data)
   }
   const columns = [
     {
@@ -126,6 +129,7 @@ export function TablaCategorias({
       cell: (info) => (
         <td data-title="Acciones" className="ContentCell">
           <ContentAccionesTabla
+            funcionVer={() => ver(info.row.original)}
             funcionEditar={() => editar(info.row.original)}
             funcionEliminar={() => eliminar(info.row.original)}
           />
@@ -140,7 +144,7 @@ export function TablaCategorias({
     },
   ];
   const table = useReactTable({
-    data,
+  data: datas,
     columns,
     state: {
       columnFilters,
@@ -223,13 +227,18 @@ export function TablaCategorias({
           table={table}
           irinicio={() => table.setPageIndex(0)}
           pagina={table.getState().pagination.pageIndex + 1}
-          setPagina={setPagina}
           maximo={table.getPageCount()}
         />
       </Container>
     </>
   );
 }
+TablaCategorias.propTypes = {
+  data: PropTypes.array,
+  SetopenRegistro: PropTypes.func,
+  setdataSelect: PropTypes.func,
+  setAccion: PropTypes.func,
+};
 const Container = styled.div`
   position: relative;
 

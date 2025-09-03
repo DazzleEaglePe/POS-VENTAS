@@ -1,8 +1,4 @@
 import { v } from "../styles/variables";
-import {
-  AiOutlineHome,
-  AiOutlineSetting,
-} from "react-icons/ai";
 
 export const DesplegableUser = [
   {
@@ -28,23 +24,27 @@ export const DesplegableUser = [
 export const LinksArray = [
   {
     label: "Home",
-    icon: "noto-v1:house",
+    icon: "solar:home-2-bold-duotone",
     to: "/",
+    color: "#2563eb",
   },
   {
     label: "Dashboard",
-    icon: "fluent-emoji-flat:antenna-bars",
+    icon: "solar:chart-bold-duotone",
     to: "/dashboard",
+    color: "#06b6d4",
   },
   {
     label: "VENDER",
-    icon: "flat-color-icons:shop",
+    icon: "solar:shop-2-bold-duotone",
     to: "/pos",
+    color: "#f59e0b",
   },
   {
     label: "Inventario",
-    icon: "flat-ui:box",
+    icon: "solar:box-bold-duotone",
     to: "/inventario",
+    color: "#10b981",
   },
   // {
   //   label: "Reportes",
@@ -57,15 +57,15 @@ export const SecondarylinksArray = [
  
   {
     label: "Configuración",
-    icon:"icon-park:setting-two",
+    icon:"solar:settings-bold-duotone",
     to: "/configuracion",
-    color:"#CE82FF"
+    color:"#A78BFA"
   },
   {
     label: "Mi perfil",
-    icon:"icon-park:avatar",
+    icon:"solar:user-bold-duotone",
     to: "/miperfil",
-    color:"#CE82FF"
+    color:"#22c55e"
   },
   
   

@@ -2,11 +2,14 @@ import styled from "styled-components";
 
 import { useAuthStore } from "../../index";
 import { NieveComponente } from "../organismos/NieveComponente";
+import { confirmLogout, toastSuccess } from "../../index";
 export function Welcome() {
   const { cerrarSesion } = useAuthStore();
-  function cerrar(){
-    cerrarSesion()
-   
+  async function cerrar(){
+    const ok = await confirmLogout()
+    if (!ok) return
+    await cerrarSesion()
+    toastSuccess('Sesión cerrada')
   }
   return (
     <Container>

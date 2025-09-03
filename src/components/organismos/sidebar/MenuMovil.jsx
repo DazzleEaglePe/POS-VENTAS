@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import PropTypes from "prop-types";
 import {
   LinksArray,
   SecondarylinksArray,
@@ -9,7 +9,7 @@ import { v } from "../../../styles/variables";
 import { NavLink } from "react-router-dom";
 import { Icon } from "@iconify/react";
 export const MenuMovil = ({ setState }) => {
-  const [state, setstate] = useState(true);
+  const state = true;
 
   return (
     <Container>
@@ -20,7 +20,7 @@ export const MenuMovil = ({ setState }) => {
             <div className="imgcontent">
               <img src={v.logo} />
             </div>
-            <h2>Ada369 3.0</h2>
+            <h2>Minimarket</h2>
           </div>
           {LinksArray.map(({ icon, label, to }) => (
             <div
@@ -66,15 +66,12 @@ export const MenuMovil = ({ setState }) => {
             </div>
           ))}
           <div className={state ? "LinkContainer active" : "LinkContainer"}>
-            <div
-              className="Links"
-              onClick={() => SetstateDesplegableLinks(!stateDesplegableLinks)}
-            >
+            <div className="Links" onClick={setState}>
               <section className={state ? "content open" : "content"}>
                 <Icon
                   color="#CE82FF"
                   className="Linkicon"
-                  icon="heroicons:ellipsis-horizontal-circle-solid"
+                  icon="solar:menu-dots-bold-duotone"
                 />
                 <span className={state ? "label_ver" : "label_oculto"}>
                   MÁS
@@ -88,6 +85,9 @@ export const MenuMovil = ({ setState }) => {
       </Main>
     </Container>
   );
+};
+MenuMovil.propTypes = {
+  setState: PropTypes.func,
 };
 const Container = styled.div`
   background: ${({ theme }) => theme.bgtotal};

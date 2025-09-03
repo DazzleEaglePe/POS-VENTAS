@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { blur_in } from "../../styles/keyframes";
 import {
   Btn1,
   Footer,
@@ -19,18 +20,30 @@ import { toast, Toaster } from "sonner";
 import { useState } from "react";
 import { CardModos } from "../organismos/LoginDesign/CardModos";
 import { VolverBtn } from "../moleculas/VolverBtn";
+import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
 export function LoginTemplate() {
   const [stateModos, setStateModos] = useState(true);
   const [stateModo, setStateModo] = useState("empleado");
-  const { loginGoogle, loginEmail, crearUserYLogin } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const { loginGoogle, loginEmail, crearUserYLogin, resetPasswordEmail } = useAuthStore();
 
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const navigate = useNavigate();
+  const { mutate, isPending: isPendingLogin } = useMutation({
     mutationKey: ["iniciar con email"],
     mutationFn: loginEmail,
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
+    },
+    onSuccess: () => {
+      toast.success("Sesión iniciada");
+      navigate("/dashboard");
     },
   });
   const { mutate: mutateTester, isPending } = useMutation({
@@ -50,6 +63,21 @@ export function LoginTemplate() {
   const manejadorEmailSesion = (data) => {
     mutate({ email: data.email, password: data.password });
   };
+  const handleForgotPassword = async () => {
+    // Tomamos el email ya tipeado si existe, y validamos formato básico
+    const emailInput = document.querySelector('input[placeholder="email"]');
+    const emailValue = emailInput?.value || "";
+    if (!emailValue) {
+      toast.error("Ingresa tu email para enviarte el enlace");
+      return;
+    }
+    try {
+      await resetPasswordEmail(emailValue);
+      toast.success("Revisa tu correo para restablecer la contraseña");
+    } catch (e) {
+      toast.error(e.message || "No se pudo enviar el correo");
+    }
+  };
   const manejarCrearUSerTester = () => {
     const response = Generarcodigo({ id: 2 });
     const gmail = "@gmail.com";
@@ -62,7 +90,7 @@ export function LoginTemplate() {
       <div className="card">
         <ContentLogo>
           <img src={v.logo} />
-          <span>ada369 - POS VENTAS</span>
+          <span>Minimarket</span>
         </ContentLogo>
         <Title $paddingbottom="40px">Ingresar Modo</Title>
         {stateModos && (
@@ -93,30 +121,82 @@ export function LoginTemplate() {
           ? stateModos === false && (
               <PanelModo>
                 <VolverBtn funcion={() => setStateModos(!stateModos)} />
-                <span>Modo empleado</span>
+                <Header>
+                  <Icon icon="solar:login-2-bold-duotone" width={26} height={26} />
+                  <Title $paddingbottom="0">Iniciar sesión</Title>
+                </Header>
+                <Helper>Ingresa tus credenciales para continuar.</Helper>
                 <form onSubmit={handleSubmit(manejadorEmailSesion)}>
                   <InputText2>
                     <input
                       className="form__field"
                       placeholder="email"
-                      type="text"
-                      {...register("email", { required: true })}
+                      type="email"
+                      autoComplete="email"
+                      aria-invalid={errors.email ? "true" : "false"}
+                      {...register("email", {
+                        required: "El email es obligatorio",
+                        pattern: {
+                          value:
+                            /^(?:[a-zA-Z0-9_'^&amp;+%$#!`~{}\-]+(?:\.[a-zA-Z0-9_'^&amp;+%$#!`~{}\-]+)*)@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/,
+                          message: "Email no válido",
+                        },
+                      })}
                     />
                   </InputText2>
-                  <InputText2>
-                    <input
-                      className="form__field"
-                      placeholder="contraseña"
-                      type="password"
-                      {...register("password", { required: true })}
-                    />
-                  </InputText2>
+                  {errors.email && (
+                    <ErrorMsg role="alert">{errors.email.message}</ErrorMsg>
+                  )}
+
+                  <div className="password-row">
+                    <InputText2 style={{ flex: 1 }}>
+                      <input
+                        className="form__field"
+                        placeholder="contraseña"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        aria-invalid={errors.password ? "true" : "false"}
+                        {...register("password", {
+                          required: "La contraseña es obligatoria",
+                          minLength: {
+                            value: 6,
+                            message: "Mínimo 6 caracteres",
+                          },
+                        })}
+                      />
+                    </InputText2>
+                    <TogglePass
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                      <Icon
+                        icon={showPassword ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"}
+                        width={24}
+                        height={24}
+                      />
+                    </TogglePass>
+                  </div>
+                  {errors.password && (
+                    <ErrorMsg role="alert">{errors.password.message}</ErrorMsg>
+                  )}
+
+                  <ExtrasRow>
+                    <label className="remember">
+                      <input type="checkbox" /> Recordarme
+                    </label>
+                    <button type="button" className="link-muted" onClick={handleForgotPassword}>
+                      Olvidé mi contraseña
+                    </button>
+                  </ExtrasRow>
+
                   <Btn1
                     border="2px"
-                    titulo="INGRESAR"
+                    titulo={isPendingLogin ? "INGRESANDO…" : "INGRESAR"}
                     bgcolor="#1CB0F6"
                     color="255,255,255"
                     width="100%"
+                    disabled={isPendingLogin}
                   />
                 </form>
               </PanelModo>
@@ -129,7 +209,7 @@ export function LoginTemplate() {
                   disabled={isPending}
                   funcion={manejarCrearUSerTester}
                   border="2px"
-                  titulo="MODO INVITADO"
+                  titulo={isPending ? "CREANDO…" : "MODO INVITADO"}
                   bgcolor="#f6ce1c"
                   color="255,255,255"
                   width="100%"
@@ -160,13 +240,23 @@ const Container = styled.div`
   flex-direction: column;
   padding: 0 10px;
   color: ${({ theme }) => theme.text};
+  background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08));
   .card {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100%;
+    height: auto;
     width: 100%;
     margin: 20px;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+    border: 1px solid ${({ theme }) => theme.color2};
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  animation: ${blur_in} .35s ease-out;
+  transition: box-shadow .2s ease, border-color .2s ease, transform .08s ease;
+  &:hover{ box-shadow: 0 10px 28px rgba(0,0,0,0.14); border-color: ${({ theme }) => theme.color1}; }
+  &:active{ transform: scale(.999); }
     @media ${Device.tablet} {
       width: 400px;
     }
@@ -175,6 +265,11 @@ const Container = styled.div`
       flex-direction: column;
       gap: 10px;
     }
+  }
+  .password-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
   }
 `;
 const ContentLogo = styled.section`
@@ -198,4 +293,51 @@ const PanelModo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+`;
+
+const Header = styled.div`
+  display:flex; align-items:center; gap:10px;
+`;
+
+const Helper = styled.p`
+  font-size: .95rem; opacity:.8; margin: 0;
+`;
+
+const TogglePass = styled.button`
+  border: 1px solid ${({ theme }) => theme.color2};
+  background: ${({ theme }) => theme.bgAlpha};
+  color: ${({ theme }) => theme.text};
+  height: 42px;
+  width: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .1s ease;
+  &:hover{ transform: scale(1.02); }
+`;
+
+const ErrorMsg = styled.small`
+  color: #ef4444;
+  text-align: left;
+  margin: -4px 4px 6px;
+  font-weight: 600;
+`;
+
+const ExtrasRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  .remember{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .link-muted{
+    color: ${({ theme }) => theme.text};
+    opacity: .8;
+    text-decoration: underline;
+  }
 `;

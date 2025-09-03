@@ -1,13 +1,5 @@
 import styled from "styled-components";
-import {
-  ContentAccionesTabla,
-  useCategoriasStore,
-  Paginacion,
-  ImagenContent,
-  Icono,
-  useUsuariosStore,
-} from "../../../index";
-import Swal from "sweetalert2";
+import { Paginacion } from "../../../index";
 import { v } from "../../../styles/variables";
 import { useState } from "react";
 import {
@@ -19,50 +11,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { FaArrowsAltV } from "react-icons/fa";
-import { useAsignacionCajaSucursalStore } from "../../../store/AsignacionCajaSucursalStore";
-import { useQueryClient } from "@tanstack/react-query";
-export function TablaInventarios({
-  data,
-  SetopenRegistro,
-  setdataSelect,
-  setAccion,
-}) {
-  if (data == null) return;
-  const [pagina, setPagina] = useState(1);
-  const [datas, setData] = useState(data);
-  const [columnFilters, setColumnFilters] = useState([]);
-  const queryClient = useQueryClient();
-  const { eliminarUsuarioAsignado } = useUsuariosStore();
-  function eliminar(p) {
-    Swal.fire({
-      title: "¿Estás seguro(a)(e)?",
-      text: "Una vez eliminado, ¡no podrá recuperar este registro!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Si, eliminar",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await eliminarUsuarioAsignado({ id: p.id_usuario });
-        queryClient.invalidateQueries(["mostrar usuarios asignados"]);
-      }
-    });
-  }
-  function editar(data) {
-    if (data.nombre === "General") {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Este registro no se permite modificar ya que es valor por defecto.",
-        footer: '<a href="">...</a>',
-      });
-      return;
-    }
-    SetopenRegistro(true);
-    setdataSelect(data);
-    setAccion("Editar");
-  }
+import PropTypes from "prop-types";
+export function TablaInventarios({ data }) {
+  const safeData = data ?? [];
+  const [datas, setData] = useState(safeData);
+  const [columnFilters] = useState([]);
   const columns = [
     {
       accessorKey: "fecha",
@@ -143,7 +96,7 @@ export function TablaInventarios({
     },
   ];
   const table = useReactTable({
-    data,
+    data: datas,
     columns,
     state: {
       columnFilters,
@@ -219,13 +172,15 @@ export function TablaInventarios({
           table={table}
           irinicio={() => table.setPageIndex(0)}
           pagina={table.getState().pagination.pageIndex + 1}
-          setPagina={setPagina}
           maximo={table.getPageCount()}
         />
       </Container>
     </>
   );
 }
+TablaInventarios.propTypes = {
+  data: PropTypes.array,
+};
 const Container = styled.div`
   position: relative;
 
@@ -370,12 +325,4 @@ const Container = styled.div`
     }
   }
 `;
-const Colorcontent = styled.div`
-  justify-content: center;
-  min-height: ${(props) => props.$alto};
-  width: ${(props) => props.$ancho};
-  display: flex;
-  background-color: ${(props) => props.color};
-  border-radius: 50%;
-  text-align: center;
-`;
+// Removed unused Colorcontent styled component
