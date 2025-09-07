@@ -20,16 +20,20 @@ export const ProtectedRoute = ({ children, accessBy }) => {
     enabled: !!datausuarios,
   });
   if(isLoadingPermisosGlobales){
-    // return <span>cargando permisos...</span>
+  // Espera a cargar permisos para evitar falsos positivos/negativos
+  return null;
   }
   // Admin approval (disabled): redirect to /pending if local pending flag exists
   // const isPendingApproval = (() => { try { return localStorage.getItem('sb_approval_pending') === '1'; } catch { return false; } })();
   // if (isPendingApproval && location.pathname !== "/pending") {
   //   return <Navigate to="/pending" replace />;
   // }
-  const hasPermission = dataPermisosGlobales?.some(
-    (item) => item.modulos?.link === location.pathname
-  );
+  // Validación por ruta exacta (evita que un permiso a /configuracion
+  // habilite todas las subrutas). Ignora módulos de acción con link '-'.
+  const hasPermission = dataPermisosGlobales?.some((item) => {
+    const link = item.modulos?.link;
+    return link && link !== '-' && link === location.pathname;
+  });
  
   // If user is in password recovery flow, always force them to /reset until completed
   if (isRecovering && location.pathname !== "/reset") {
@@ -46,9 +50,17 @@ export const ProtectedRoute = ({ children, accessBy }) => {
   } else if (accessBy === "authenticated") {
     // Block access to authenticated routes while recovering
     if (user && !isRecovering) {
+      // Whitelist: Mi Perfil es accesible para cualquier usuario autenticado
+      if (location.pathname === "/miperfil") {
+        return children;
+      }
+      // Si aún no hay permisos cargados (query no habilitada o sin datos), espera
+      if (!dataPermisosGlobales) {
+        return null;
+      }
       if (!hasPermission) {
-        // return <Navigate to="/404" />;
-      } 
+        return <Navigate to="/404" replace />;
+      }
  
       return children;
     }

@@ -3548,6 +3548,34 @@ INSERT INTO public.modulos VALUES (25, 'Serialización de comprobantes', false, 
 INSERT INTO public.roles VALUES (1, 'superadmin');
 INSERT INTO public.roles VALUES (2, 'cajero');
 INSERT INTO public.roles VALUES (3, 'admin');
+INSERT INTO public.roles VALUES (4, 'gerente');
+
+-- Permisos por defecto: cajero
+-- Home (22), Ventas (16), Cobrar venta (18)
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 2, 22);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 2, 16);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 2, 18);
+
+-- Permisos por defecto: gerente
+-- Home (22), Ventas (16), Cobrar venta (18), Dashboard (17), Inventarios (23),
+-- Configuracion (15), Almacenes (21), Productos (2), Categorias (1),
+-- Clientes (4), Proveedores (5), Sucursales y cajas (7), Impresoras (9),
+-- Métodos de pago (6), Configuración de ticket (24)
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 22);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 16);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 18);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 17);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 23);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 15);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 21);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 2);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 1);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 4);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 5);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 7);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 9);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 6);
+INSERT INTO public.permisos_dafault VALUES (DEFAULT, 4, 24);
 
 INSERT INTO public.tipo_comprobantes VALUES (1, 'Factura', 'ventas');
 INSERT INTO public.tipo_comprobantes VALUES (2, 'Boleta', 'ventas');
